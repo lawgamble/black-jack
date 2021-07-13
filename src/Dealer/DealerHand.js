@@ -1,26 +1,37 @@
-import React, { useEffect } from "react";
+import { useState, useEffect } from "react";
+import "./DealerHand.css";
 
-const DealerHand = ({ dealerHand, dealerValue, setDealerValue }) => {
+function DealerHand({ dealerHand, userStands }) {
+  const [dealerValue, setDealerValue] = useState();
+
   useEffect(() => {
-    let number = 0;
+    let count = 0;
     for (let i = 0; i < dealerHand.length; i++) {
-      number += dealerHand[i].value;
-      setDealerValue(number);
+      count += dealerHand[i].value;
     }
+    setDealerValue(count);
   }, [dealerHand]);
 
   return (
     <div>
-      {dealerHand.length > 1
-        ? dealerHand.map((card, index) => (
-            <div className="user-hand" key={index}>
-              <img src={card.image} />
-            </div>
-          ))
-        : null}
-      <div>{dealerValue}</div>
+      {dealerHand.map((card, index) => (
+        <DealerCard card={card} index={index} dealerValue={dealerValue} />
+      ))}
+      <div>{dealerHand.length > 0 && dealerValue}</div>
     </div>
   );
-};
+}
 
+function DealerCard({ card, index }) {
+  return (
+    <div className="dealer-cards-in-hand w3-animate-right">
+      <img
+        src={card.image}
+        key={index}
+        alt={card.code}
+        className="card-image"
+      />
+    </div>
+  );
+}
 export default DealerHand;

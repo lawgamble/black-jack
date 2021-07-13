@@ -1,65 +1,59 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
+import "./css/App.css";
 import UserHand from "./User/UserHand";
 import DealerHand from "./Dealer/DealerHand";
 import deck from "./Deck/DeckOfCards";
+import backOfCard from "./Deck/BackOfCard";
 
 function App() {
   const [deckOfCards, setDeckOfCards] = useState([]);
+  const [isGameActive, setIsGameActive] = useState(false);
+  const [userHand, setUserHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   const [dealerValue, setDealerValue] = useState();
-  const [userHand, setUserHand] = useState([]);
-  const [userValue, setUserValue] = useState();
+  const [disableButton, setDisableButton] = useState(false);
+  const [userStands, setUserStands] = useState(false);
 
   useEffect(() => {
     setDeckOfCards(deck);
   });
 
-  function dealUser() {
-    enableHitButton();
-    let iOfCardOne = Math.floor(Math.random() * deck.length) + 1;
-    let iOfCardTwo = Math.floor(Math.random() * deck.length) + 1;
-    setUserHand([deck[iOfCardOne], deck[iOfCardTwo]]);
-    deckOfCards.splice(iOfCardOne, 1);
-    deckOfCards.splice(iOfCardTwo, 1);
-    dealDealer();
+  // useEffect(() => {
+  //   let count = 0;
+  //   for (let i = 0; i < dealerHand.length; i++) {
+  //     count += dealerHand[i].value;
+  //   }
+  //   setDealerValue(count);
+  //   console.log(dealerHand.length);
+  // }, [dealerHand]);
+
+  function getNewCard() {
+    const randomIndexFromDeck = Math.floor(Math.random() * deck.length) + 1;
+    deckOfCards.splice(randomIndexFromDeck, 1);
+    return deckOfCards[randomIndexFromDeck];
   }
 
-  function dealDealer() {
-    let iOfCardOne = Math.floor(Math.random() * deck.length) + 1;
-    let iOfCardTwo = Math.floor(Math.random() * deck.length) + 1;
-    setDealerHand([deck[iOfCardOne], deck[iOfCardTwo]]);
-    deckOfCards.splice(iOfCardOne, 1);
-    deckOfCards.splice(iOfCardTwo, 1);
+  function dealHandler() {
+    setUserStands(false);
+    setIsGameActive(true);
+    setDisableButton(false);
+    setDealerHand([getNewCard(), backOfCard]);
+    setUserHand([getNewCard(), getNewCard()]);
   }
 
-  function dealerHit() {
-    let hitCardIndex = Math.floor(Math.random() * deck.length) + 1;
-    setDealerHand([...dealerHand, deckOfCards[hitCardIndex]]);
-    deckOfCards.splice(hitCardIndex, 1);
+  function standHandler() {
+    setUserStands(true);
+    setDisableButton(true);
+    // setDealerHand(dealerHand.splice(1, 1));
+    const removedFlippedCard = dealerHand.pop();
+    setDealerHand(removedFlippedCard);
+    setDealerHand([...dealerHand, getNewCard()]);
   }
 
-  function hitButton() {
-    let hitCardIndex = Math.floor(Math.random() * deck.length) + 1;
-    setUserHand([...userHand, deckOfCards[hitCardIndex]]);
-    console.log(userHand);
-    deckOfCards.splice(hitCardIndex, 1);
-  }
-
-  function standButton() {
-    disableHitButton();
-    if (dealerValue < 17) {
-      dealerHit();
-    }
-  }
-
-  function disableHitButton() {
-    document.getElementById("hit-btn").disabled = true;
-  }
-
-  function enableHitButton() {
-    document.getElementById("hit-btn").disabled = false;
-  }
+  // if (userStands && dealerValue < 17) {
+  //   const newDealerCard = getNewCard();
+  //   setDealerHand([...dealerHand, newDealerCard]);
+  // }
 
   return (
     <div className="App">
@@ -70,29 +64,32 @@ function App() {
           in the deck: {deckOfCards.length})
         </h3>
       </div>
-      <button className="deal-btn" onClick={dealUser}>
+      <button
+        className="w3-button w3-blue w3-round-medium"
+        onClick={() => dealHandler()}
+      >
         Deal Cards
         <br />
       </button>
-      <DealerHand
-        dealerHand={dealerHand}
-        dealerValue={dealerValue}
-        setDealerValue={setDealerValue}
-      />
-      <hr></hr>
-      <UserHand
-        userHand={userHand}
-        userValue={userValue}
-        setUserValue={setUserValue}
-      />
-      <div style={{ display: userHand.length > 0 ? "block" : "none" }}>
-        <button className="hit-button" id="hit-btn" onClick={hitButton}>
-          Hit
-        </button>
-        <button className="stand-btn" onClick={standButton}>
-          Stand
-        </button>
-      </div>
+      <hr />
+      <DealerHand dealerHand={dealerHand} userStands={userStands} />
+      <br />
+      <UserHand userHand={userHand} />
+      {userHand.length > 0 && (
+        <div>
+          <button
+            onClick={() => setUserHand([...userHand, getNewCard()])}
+            disabled={disableButton}
+            className="hit-button"
+            id="hit-button"
+          >
+            Hit
+          </button>
+          <button onClick={() => standHandler()} className="stand-button">
+            Stand
+          </button>
+        </div>
+      )}
     </div>
   );
 }

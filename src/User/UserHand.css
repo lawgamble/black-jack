@@ -5,3 +5,9 @@
 .user-hand img {
     size: 20 px;
 }
+
+.cards-in-hand {
+    display: inline-flex;
+}
+
+

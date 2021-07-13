@@ -1,0 +1,9 @@
+.dealer-cards-in-hand {
+    display: inline-flex;
+}
+
+.dealer-cards-in-hand img {
+    width:100%;
+    height: auto;
+    align-items: center;
+}
